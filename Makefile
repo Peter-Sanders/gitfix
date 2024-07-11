@@ -1,5 +1,5 @@
 # Change these variables as necessary.
-MAIN_PACKAGE_PATH := ./cmd/gitfix/
+MAIN_PACKAGE_PATH := ./cmd/gitfix
 BINARY_NAME := gitfix 
 
 # ==================================================================================== #
