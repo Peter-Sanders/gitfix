@@ -1,7 +1,8 @@
 # Change these variables as necessary.
 MAIN_PACKAGE_PATH := ./cmd/gitfix
-BINARY_NAME := gitfix 
-
+BINARY_NAME := gitfix
+INSTALL_DIR := /usr/local/bin
+ZSHRC_FILE := ~/.zshrc
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -19,7 +20,6 @@ confirm:
 .PHONY: no-dirty
 no-dirty:
 	git diff --exit-code
-
 
 # ==================================================================================== #
 # QUALITY CONTROL
@@ -52,4 +52,17 @@ build:
 	# Include additional build steps, like TypeScript, SCSS or Tailwind compilation here...
 	go build -o ${MAIN_PACKAGE_PATH}/${BINARY_NAME}
 
-	
+# ==================================================================================== #
+# INSTALLATION
+# ==================================================================================== #
+install: build move_bin
+
+# move binary to wherever
+.PHONY: move_bin
+move_bin:
+	@echo "Installing $(BINARY_NAME)..."
+	chmod +x $(MAIN_PACKAGE_PATH)/$(BINARY_NAME)
+	sudo cp $(MAIN_PACKAGE_PATH)/$(BINARY_NAME) $(INSTALL_DIR)
+	chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
+	@echo "Installed $(BINARY_NAME) to $(INSTALL_DIR)/$(BINARY_NAME)"
+	@echo "Updating .zshrc to include $(INSTALL_DIR)..."

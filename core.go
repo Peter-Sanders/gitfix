@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+func PrintHelp() {
+	fmt.Println("Usage: gitfix [-t value] [-s value] [-h]")
+	fmt.Println("Options:")
+	fmt.Println("  -t value\tThe target branch. EX: dev ")
+	fmt.Println("  -s value\tThe source feature branch. EX: DE-1234")
+	fmt.Println("  -h\t\tPrint this help message")
+}
+
 func PickFiles(files []string) []string {
 	var newFiles []string
 

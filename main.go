@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -10,10 +11,21 @@ func main() {
 	// Parse command-line flags
 	t := flag.String("t", "", "Target branch to merge into")
 	s := flag.String("s", "", "Source branch which has staged changes")
+	h := flag.Bool("h", false, "Print help message")
 	flag.Parse()
 
+	if *h {
+		PrintHelp()
+		os.Exit(0)
+	}
+
+	if *t == "" && *s == "" {
+		fmt.Println("GITFIX v1.0\n\nMade by Peter Sanders")
+		return
+	}
+
 	if *t == "" || *s == "" {
-		fmt.Println("Both -t and -s flags are required")
+		fmt.Println("Please specify a target and source branch using -t and -s")
 		return
 	}
 
