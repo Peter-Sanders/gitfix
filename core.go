@@ -16,7 +16,7 @@ func PrintHelp() {
 	fmt.Println("  -h\t\tPrint this help message")
 }
 
-func PickFiles(files []string) []string {
+func PickFiles(files []string, source string) []string {
 	var newFiles []string
 
 	fmt.Println("Pick only the files you want to include:")
@@ -46,12 +46,12 @@ func PickFiles(files []string) []string {
 		}
 	}
 
-	finalFiles := CheckFiles(newFiles)
+	finalFiles := CheckFiles(newFiles, source)
 
 	return finalFiles
 }
 
-func CheckFiles(files []string) []string {
+func CheckFiles(files []string, source string) []string {
 	var newFiles []string
 
 	fmt.Println("Files changed:")
@@ -76,19 +76,24 @@ func CheckFiles(files []string) []string {
 		newFiles = files
 	case "r":
 		fmt.Println("Resetting files to original diff")
-		newFiles = CheckFiles(files)
+		originalFiles, err := GitDiff(source)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return newFiles
+		}
+		newFiles = CheckFiles(originalFiles, source)
 	case "q":
 		// Leave this empty so we can check for an empty response later
 	case "p":
-		newFiles = PickFiles(files)
+		newFiles = PickFiles(files, source)
 	case "v":
-		newFiles, err = SearchFiles(files)
+		newFiles, err = SearchFiles(files, source)
 		if err != nil {
 			fmt.Printf("Error Searching for Files: %v\n", err)
 		}
 	default:
 		fmt.Println("Invalid response. Type only 'y', 'r', 'q', 'p', or 'v'")
-		newFiles = CheckFiles(files)
+		newFiles = CheckFiles(files, source)
 	}
 
 	return newFiles
@@ -184,7 +189,7 @@ func ReadAndFilterFile(filename string) ([]string, error) {
 	return keptFiles, nil
 }
 
-func SearchFiles(files []string) ([]string, error) {
+func SearchFiles(files []string, source string) ([]string, error) {
 	var newFiles []string
 
 	tempFile, err := os.CreateTemp("", "temp.txt")
@@ -213,7 +218,7 @@ func SearchFiles(files []string) ([]string, error) {
 		return nil, err
 	}
 
-	finalFiles := CheckFiles(newFiles)
+	finalFiles := CheckFiles(newFiles, source)
 
 	return finalFiles, nil
 }

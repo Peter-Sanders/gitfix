@@ -71,7 +71,7 @@ func main() {
 	}
 
 	// Get the list of files we want to checkout for the new branch
-	good_files := CheckFiles(files)
+	good_files := CheckFiles(files, source)
 
 	if len(good_files) == 0 {
 		return
