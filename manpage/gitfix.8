@@ -1,0 +1,17 @@
+.\" Manpage for gitfix.
+.\" Contact psanders@delawarenorth.com to correct errors or typos.
+.TH man 8 "11 July 2024" "1.0" "gitfix man page"
+.SH NAME
+gitfix \- cherry pick files between a source and target git branch
+.SH SYNOPSIS
+gitfix -t [TARGET_BRANCH] -s [SOURCE_BRANCH]
+.SH DESCRIPTION
+gitfix is a program that is designed to take a source feature branch, pointed towards a conflicted target branch, cherry pick files from the source, create a new branch based on the target, and apply them to the new branch to mitigate merge issues.
+.SH OPTIONS
+-t [TARGET_BRANCH] -s [SOURCE_BRANCH] -h [HELP] (optional)
+.SH SEE ALSO
+git diff
+.SH BUGS
+When entering vi for interactive file choosing, the header part of the temp file isn't written. No functionality is impacted but a helpful prompt at the top would be nice.
+.SH AUTHOR
+Peter Sanders (psanders@delawarenorth.com)

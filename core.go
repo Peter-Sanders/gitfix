@@ -59,8 +59,8 @@ func CheckFiles(files []string) []string {
 		fmt.Println(fileName)
 	}
 
-	out := "CHECK THIS LIST OF FILES CAREFULLY!!!!!!\nType 'y' to proceed, 'q' to quit, 'p' to pick only the files you want included, or 'v' to "
-	out += "choose files you want to keep using vi (y/q/p/v):"
+	out := "CHECK THIS LIST OF FILES CAREFULLY!!!!!!\nType 'y' to proceed, 'q' to quit, 'p' to pick only the files you want included, 'v' to "
+	out += "choose files you want to keep using vi, or 'r' to reset the files back to the original diff (y/q/p/v/r):"
 	fmt.Println(out)
 	reader := bufio.NewReader(os.Stdin)
 	response, err := reader.ReadString('\n')
@@ -74,6 +74,9 @@ func CheckFiles(files []string) []string {
 	switch response {
 	case "y":
 		newFiles = files
+	case "r":
+		fmt.Println("Resetting files to original diff")
+		newFiles = CheckFiles(files)
 	case "q":
 		// Leave this empty so we can check for an empty response later
 	case "p":
@@ -84,7 +87,7 @@ func CheckFiles(files []string) []string {
 			fmt.Printf("Error Searching for Files: %v\n", err)
 		}
 	default:
-		fmt.Println("Invalid response. Type only 'y', 'q', 'p', or 'v'")
+		fmt.Println("Invalid response. Type only 'y', 'r', 'q', 'p', or 'v'")
 		newFiles = CheckFiles(files)
 	}
 

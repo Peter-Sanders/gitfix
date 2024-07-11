@@ -3,6 +3,8 @@ MAIN_PACKAGE_PATH := ./cmd/gitfix
 BINARY_NAME := gitfix
 INSTALL_DIR := /usr/local/bin
 ZSHRC_FILE := ~/.zshrc
+LOCAL_MAN := ./manpage/gitfix.8
+MAN_DIR := /opt/homebrew/share/man/man8
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -55,7 +57,7 @@ build:
 # ==================================================================================== #
 # INSTALLATION
 # ==================================================================================== #
-install: build move_bin
+install: build move_bin move_man
 
 # move binary to wherever
 .PHONY: move_bin
@@ -66,3 +68,8 @@ move_bin:
 	chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "Installed $(BINARY_NAME) to $(INSTALL_DIR)/$(BINARY_NAME)"
 	@echo "Updating .zshrc to include $(INSTALL_DIR)..."
+
+.PHONY: move_man
+move_man:
+	@echo "Installing gitfix manpage"
+	sudo cp ./manpage/gitfix.8 $(MAN_DIR)
