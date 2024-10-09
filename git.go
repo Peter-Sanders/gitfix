@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"sync"
 )
@@ -19,7 +20,7 @@ func CheckBranchExistence(branch string) (bool, error) {
 	return branchesCount == 1, nil
 }
 
-func ConfirmBranches(branches [2]string) (bool, error) {
+func ConfirmBranches(branches [3]string) (bool, error) {
 	var wg sync.WaitGroup
 	wg.Add(len(branches))
 	results := make(chan bool, len(branches))
@@ -49,17 +50,37 @@ func ConfirmBranches(branches [2]string) (bool, error) {
 	return true, nil
 }
 
-func GitDiff(branch string) ([]string, error) {
-	cmd := exec.Command("git", "diff", branch, "--name-only")
+func GitDiff(branch string, default_branch string) ([]string, []string, error) {
+	if default_branch == "" {
+		default_branch = "main"
+	}
+
+	var modifiedBranches []string
+	var deletedBranches []string
+
+	cmd := exec.Command("git", "diff", default_branch, branch, "--name-status")
 
 	output, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("error running git diff command: %v", err)
+		return nil, nil, fmt.Errorf("error running git diff command: %v", err)
 	}
 
-	fileNames := strings.Split(strings.TrimSpace(string(output)), "\n")
+	r1 := regexp.MustCompile(":")
+	results := strings.Split(r1.ReplaceAllString(strings.TrimSpace(string(output)), ""), "\n")
 
-	return fileNames, nil
+	for file := range results {
+		fileData := strings.Fields(results[file])
+		action := strings.TrimSpace(fileData[0])
+		name := strings.TrimSpace(fileData[1])
+
+		if action == "D" {
+			deletedBranches = append(deletedBranches, name)
+		} else {
+			modifiedBranches = append(modifiedBranches, name)
+		}
+	}
+
+	return modifiedBranches, deletedBranches, nil
 }
 
 func MakeNewFeatureBranch(envFeatureBranch string) error {
@@ -97,6 +118,25 @@ func CheckoutFiles(files []string, source string) error {
 		if err != nil {
 			return fmt.Errorf("error checking out files: %v", err)
 		}
+	}
+
+	return nil
+}
+
+func MoveAndPull(branch string) error {
+	// Swap to the branch and update it
+	fmt.Printf("Moving to %s\n", branch)
+	cmd1 := exec.Command("git", "checkout", branch)
+	err1 := cmd1.Run()
+	if err1 != nil {
+		return fmt.Errorf("Error running git checkout command: %v\n", err1)
+	}
+
+	// Pull the latest
+	cmd2 := exec.Command("git", "pull")
+	err2 := cmd2.Run()
+	if err2 != nil {
+		return fmt.Errorf("Error running git pull command: %v\n", err2)
 	}
 
 	return nil

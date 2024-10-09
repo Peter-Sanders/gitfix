@@ -76,7 +76,7 @@ func CheckFiles(files []string, source string) []string {
 		newFiles = files
 	case "r":
 		fmt.Println("Resetting files to original diff")
-		originalFiles, err := GitDiff(source)
+		originalFiles, _, err := GitDiff(source, "")
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			return newFiles
@@ -221,4 +221,56 @@ func SearchFiles(files []string, source string) ([]string, error) {
 	finalFiles := CheckFiles(newFiles, source)
 
 	return finalFiles, nil
+}
+
+func DeleteFiles(files []string) error {
+	for file := range files {
+		// Delete the file
+		fmt.Printf("Deleting file: %s\n", files[file])
+		cmd := exec.Command("rm", files[file])
+		err := cmd.Run()
+		if err != nil {
+			return fmt.Errorf("Error deleting file %s: %v\n", files[file], err)
+		}
+	}
+	return nil
+}
+
+func ConfirmFiles(modifiedFiles []string, deletedFiles []string) bool {
+
+	// Display all the modified files
+	fmt.Printf("Files to be carried over:\n")
+	for _, file := range modifiedFiles {
+		fmt.Printf("%s\n ", file)
+	}
+
+	// Display all the deleted files
+	fmt.Printf("Files to be deleted:\n")
+	for _, file := range deletedFiles {
+		fmt.Printf("%s\n ", file)
+	}
+
+	out := "CHECK THIS LIST OF FILES CAREFULLY!!!!!!\nType 'y' to proceed or 'n' to quit (y/n):"
+	fmt.Println(out)
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Printf("Error reading input: %v\n", err)
+	}
+
+	response = strings.TrimSpace(response)
+	response = strings.ToLower(response)
+
+	switch response {
+	case "y":
+		return true
+	case "n":
+		return false
+	default:
+		fmt.Println("Invalid response. Type only 'y'or 'n'")
+		ConfirmFiles(modifiedFiles, deletedFiles)
+	}
+
+	fmt.Println("Something weird happened you should never see this ")
+	return false
 }
